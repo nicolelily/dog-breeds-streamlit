@@ -1,137 +1,76 @@
-import pandas as pd
-import numpy as np
 import streamlit as st
+import pandas as pd
 import plotly.express as px
+
 
 @st.cache
 def get_data():
-    return pd.read_csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vRV48XxyP4ipyXu79PV_XpmshMSXPCBWAq9yX_hewG-BRb14Tesu4nylUCUEYLlyDeLOUsZpA228m6T/pub?gid=298041788&single=true&output=csv")
+    return pd.read_csv(
+        "https://docs.google.com/spreadsheets/d/e/2PACX-1vRV48XxyP4ipyXu79PV_XpmshMSXPCBWAq9yX_hewG-BRb14Tesu4nylUCUEYLlyDeLOUsZpA228m6T/pub?gid=298041788&single=true&output=csv")
+
 
 df = get_data()
-st.title("🐾Dog Breed Explorer🐾")
-st.markdown("Welcome to Dog Breed Explorer! Click anywhere on the sunburt charts below to see which of 121 dog breeds are in which classes as defined by the [Continental Kennel Club (CKC)](https://ckcusa.com/).) Please adopt a dog from your local shelter if possible. If you must buy a puppy, please research the breeders you're interested in and avoid pet stores.")
-st.subheader("Who doesn't love a good quote?")
+
+st.title("🐶Dog Breed Explorer🐶")
+st.markdown(
+    "Welcome to Dog Breed Explorer! Click anywhere on the interactive sunburst charts below to explore dog breeds \n "
+    "by their [Continental Kennel Club (CKC)](https://ckcusa.com/) group and subgroup.) \n"
+    "Please adopt a dog from your local shelter if possible. If you must buy a puppy, please research the breeders you're interested \n"
+    "in and avoid pet stores.")
+st.subheader("For real, tho.")
 st.markdown("> The better I get to know men, the more I find myself loving dogs. \n\n—Charles De Gaulle")
-st.subheader("For all you spreadsheet aficionados, here's a glance at the data I've visualized in the sunburst charts below.")
-st.markdown("The first ten records of the dog breeds dataset.")
+st.subheader(
+    "For all you spreadsheet aficionados, here's a glance at the data I've visualized in the sunburst charts below.")
+st.markdown("The first ten records of the dog breeds dataset. Click on a column name to sort.")
 st.dataframe(df.head(10))
 
-@st.cache
+
 def convert_df(df):
     return df.to_csv().encode('utf-8')
+
 
 csv = convert_df(df)
 
 st.download_button(
-     label="Download data as CSV",
-     data=csv,
-     file_name='dog_breeds.csv',
-     mime='text/csv',
- )
+    label="Download data as CSV",
+    data=csv,
+    file_name='dog_breeds.csv',
+    mime='text/csv',
+)
 
+st.header("Average Lifespan of Each CKC Breed Group")
+span = df.groupby("breed_group_CKC").average_lifespan.median().reset_index()
+fig_1 = px.bar(span, x="breed_group_CKC", y="average_lifespan", color="breed_group_CKC", template="plotly_dark",
+               title="Average Lifespan of Dog Breeds (colored by CKC breed group)")
+st.write(fig_1)
 
-st.subheader("Caching our data...please hold.📱")
-
-# st.header("Average Lifespan of Each CKC Breed Group")
-# span =  df.groupby("breed_group_CKC").average_lifespan.median().reset_index()
-# fig = px.bar(span, x="breed_group_CKC", y="average_lifespan", color="breed_group_CKC", template="plotly_dark",
-#             title="Average Lifespan of Dog Breeds (colored by CKC breed group)")
-#st.write(fig)
-
-small = df[df["avg_weight"] < 25]
-small
 st.subheader("Dog Breeds by Size, CKC Breed Group, and CKC Breed Subgroup")
-fig = px.sunburst(small, path=['breed_group_CKC', 'breed_ckc_subgroup', 'breed'], values='avg_weight', color='breed_group_CKC',title="Small Dog Breeds (under 25 lbs.)", template="plotly_dark")
-st.write(fig)
+small = df[df["avg_weight"] < 25]
+fig_2 = px.sunburst(small, path=['breed_group_CKC', 'breed_ckc_subgroup', 'breed'], values='avg_weight',
+                    color='breed_group_CKC', title="Small Dog Breeds (under 25 lbs.)", template="plotly_dark")
+st.write(fig_2)
 
+medium = df.loc[(df["avg_weight"] >= 25) & (df["avg_weight"] < 50)]
+fig_3 = px.sunburst(medium, path=['breed_group_CKC', 'breed_ckc_subgroup', 'breed'], values='avg_weight',
+                    color='breed_group_CKC',
+                    title="Medium Dog Breeds (25 to 50 lbs.)", template="plotly_dark")
+st.write(fig_3)
 
-st.subheader("Selecting a subset of columns")
-st.write(f"Out of the {df.shape[1]} columns, you might want to view only a subset. Streamlit has a [multiselect](https://streamlit.io/docs/api.html#streamlit.multiselect) widget for this.")
-defaultcols = ["name", "host_name", "neighbourhood", "room_type", "price"]
-cols = st.multiselect("Columns", df.columns.tolist(), default=defaultcols)
-st.dataframe(df[cols].head(10))
+large = df.loc[(df["avg_weight"] >= 50) & (df["avg_weight"] < 90)]
+xl = df.loc[(df["avg_weight"] >= 90)]
 
-st.header("Average price by room type")
-st.write("You can also display static tables. As opposed to a data frame, with a static table you cannot sorting by clicking a column header.")
-st.table(df.groupby("room_type").price.mean().reset_index()\
-    .round(2).sort_values("price", ascending=False)\
-    .assign(avg_price=lambda x: x.pop("price").apply(lambda y: "%.2f" % y)))
+fig_4 = px.sunburst(large, path=['breed_group_CKC', 'breed_ckc_subgroup', 'breed'], values='avg_weight',
+                    color='breed_group_CKC',
+                    title="Large Dog Breeds (51 to 89 lbs.)", template="plotly_dark")
+st.write(fig_4)
 
-st.header("Which host has the most properties listed?")
-listingcounts = df.host_id.value_counts()
-top_host_1 = df.query('host_id==@listingcounts.index[0]')
-top_host_2 = df.query('host_id==@listingcounts.index[1]')
-st.write(f"""**{top_host_1.iloc[0].host_name}** is at the top with {listingcounts.iloc[0]} property listings.
-**{top_host_2.iloc[1].host_name}** is second with {listingcounts.iloc[1]} listings. Following are randomly chosen
-listings from the two displayed as JSON using [`st.json`](https://streamlit.io/docs/api.html#streamlit.json).""")
+fig_5 = px.sunburst(xl, path=['breed_group_CKC', 'breed_ckc_subgroup', 'breed'], values='avg_weight',
+                    color='breed_group_CKC',
+                    title="Extra Large Dog Breeds (90 lbs.+", template="plotly_dark")
+st.write(fig_5)
 
-st.json({top_host_1.iloc[0].host_name: top_host_1\
-    [["name", "neighbourhood", "room_type", "minimum_nights", "price"]]\
-        .sample(2, random_state=4).to_dict(orient="records"),
-        top_host_2.iloc[0].host_name: top_host_2\
-    [["name", "neighbourhood", "room_type", "minimum_nights", "price"]]\
-        .sample(2, random_state=4).to_dict(orient="records")})
-
-st.header("What is the distribution of property price?")
-st.write("""Select a custom price range from the side bar to update the histogram below displayed as a Plotly chart using
-[`st.plotly_chart`](https://streamlit.io/docs/api.html#streamlit.plotly_chart).""")
-values = st.sidebar.slider("Price range", float(df.price.min()), float(df.price.clip(upper=1000.).max()), (50., 300.))
-f = px.histogram(df.query(f"price.between{values}"), x="price", nbins=15, title="Price distribution")
-f.update_xaxes(title="Price")
-f.update_yaxes(title="No. of listings")
-st.plotly_chart(f)
-
-st.header("What is the distribution of availability in various neighborhoods?")
-st.write("Using a radio button restricts selection to only one option at a time.")
-st.write("💡 Notice how we use a static table below instead of a data frame. \
-Unlike a data frame, if content overflows out of the section margin, \
-a static table does not automatically hide it inside a scrollable area. \
-Instead, the overflowing content remains visible.")
-neighborhood = st.radio("Neighborhood", df.neighbourhood_group.unique())
-show_exp = st.checkbox("Include expensive listings")
-show_exp = " and price<200" if not show_exp else ""
-
-@st.cache
-def get_availability(show_exp, neighborhood):
-    return df.query(f"""neighbourhood_group==@neighborhood{show_exp}\
-        and availability_365>0""").availability_365.describe(\
-            percentiles=[.1, .25, .5, .75, .9, .99]).to_frame().T
-
-st.table(get_availability(show_exp, neighborhood))
-st.write("At 169 days, Brooklyn has the lowest average availability. At 226, Staten Island has the highest average availability.\
-    If we include expensive listings (price>=$200), the numbers are 171 and 230 respectively.")
-st.markdown("_**Note:** There are 18431 records with `availability_365` 0 (zero), which I've ignored._")
-
-df.query("availability_365>0").groupby("neighbourhood_group")\
-    .availability_365.mean().plot.bar(rot=0).set(title="Average availability by neighborhood group",
-        xlabel="Neighborhood group", ylabel="Avg. availability (in no. of days)")
-st.pyplot()
-
-st.header("Properties by number of reviews")
-st.write("Enter a range of numbers in the sidebar to view properties whose review count falls in that range.")
-minimum = st.sidebar.number_input("Minimum", min_value=0)
-maximum = st.sidebar.number_input("Maximum", min_value=0, value=5)
-if minimum > maximum:
-    st.error("Please enter a valid range")
-else:
-    df.query("@minimum<=number_of_reviews<=@maximum").sort_values("number_of_reviews", ascending=False)\
-        .head(50)[["name", "number_of_reviews", "neighbourhood", "host_name", "room_type", "price"]]
-
-st.write("486 is the highest number of reviews and two properties have it. Both are in the East Elmhurst \
-    neighborhood and are private rooms with prices $65 and $45. \
-    In general, listings with >400 reviews are priced below $100. \
-    A few are between $100 and $200, and only one is priced above $200.")
-st.header("Images")
-pics = {
-    "Cat": "https://cdn.pixabay.com/photo/2016/09/24/22/20/cat-1692702_960_720.jpg",
-    "Puppy": "https://cdn.pixabay.com/photo/2019/03/15/19/19/puppy-4057786_960_720.jpg",
-    "Sci-fi city": "https://storage.needpix.com/rsynced_images/science-fiction-2971848_1280.jpg"
-}
-pic = st.selectbox("Picture choices", list(pics.keys()), 0)
-st.image(pics[pic], use_column_width=True, caption=pics[pic])
-
-st.markdown("## Party time!")
-st.write("Yay! You're done with this tutorial of Streamlit. Click below to celebrate.")
+st.markdown("## Yay! You explored some data today!")
+st.write("You know you want to click that button 👇🏼")
 btn = st.button("Celebrate!")
 if btn:
     st.balloons()
