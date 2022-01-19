@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 import streamlit as st
 import plotly.express as px
 
@@ -7,22 +8,42 @@ def get_data():
     return pd.read_csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vRV48XxyP4ipyXu79PV_XpmshMSXPCBWAq9yX_hewG-BRb14Tesu4nylUCUEYLlyDeLOUsZpA228m6T/pub?gid=298041788&single=true&output=csv")
 
 df = get_data()
-st.title("Dog Breed Explorer")
-st.markdown("Welcome to Dog Breed Explorer! Click anywhere on the circular chart below to see which dog breeds are in which classes as defined by the [Continental Kennel Club (CKC)](https://ckcusa.com/).) Please adopt a dog from your local shelter if possible. If you must buy a puppy, please research the breeders you're interested in and avoid pet stores.")
-st.header("Who doesn't love a good quote?")
+st.title("🐾Dog Breed Explorer🐾")
+st.markdown("Welcome to Dog Breed Explorer! Click anywhere on the sunburt charts below to see which of 121 dog breeds are in which classes as defined by the [Continental Kennel Club (CKC)](https://ckcusa.com/).) Please adopt a dog from your local shelter if possible. If you must buy a puppy, please research the breeders you're interested in and avoid pet stores.")
+st.subheader("Who doesn't love a good quote?")
 st.markdown("> The better I get to know men, the more I find myself loving dogs. \n\n—Charles De Gaulle")
-st.header("For all you spreadsheet aficionados, here's a glance at the data I've visualized in the sunburst chart below.")
-st.markdown("The first five records of the dog breeds dataset. If you'd like to download it, you can obtain it at [data.world](https://data.world/nicolemark/dog-breeds-dataset-enrichments/workspace/file?filename=dog+breeds_enriched_20210503.csv).")
-st.dataframe(df.head())
-st.header("Caching our data...please hold.")
+st.subheader("For all you spreadsheet aficionados, here's a glance at the data I've visualized in the sunburst charts below.")
+st.markdown("The first ten records of the dog breeds dataset.")
+st.dataframe(df.head(10))
 
-st.header("Where are the most expensive properties located?")
-st.subheader("On a map")
-st.markdown("The following map shows the top 1% most expensive Airbnbs priced at $800 and above.")
-st.map(df.query("price>=800")[["latitude", "longitude"]].dropna(how="any"))
-st.subheader("In a table")
-st.markdown("Following are the top five most expensive properties.")
-st.write(df.query("price>=800").sort_values("price", ascending=False).head())
+@st.cache
+def convert_df(df):
+    return df.to_csv().encode('utf-8')
+
+csv = convert_df(df)
+
+st.download_button(
+     label="Download data as CSV",
+     data=csv,
+     file_name='dog_breeds.csv',
+     mime='text/csv',
+ )
+
+
+st.subheader("Caching our data...please hold.📱")
+
+# st.header("Average Lifespan of Each CKC Breed Group")
+# span =  df.groupby("breed_group_CKC").average_lifespan.median().reset_index()
+# fig = px.bar(span, x="breed_group_CKC", y="average_lifespan", color="breed_group_CKC", template="plotly_dark",
+#             title="Average Lifespan of Dog Breeds (colored by CKC breed group)")
+#st.write(fig)
+
+small = df[df["avg_weight"] < 25]
+small
+st.subheader("Dog Breeds by Size, CKC Breed Group, and CKC Breed Subgroup")
+fig = px.sunburst(small, path=['breed_group_CKC', 'breed_ckc_subgroup', 'breed'], values='avg_weight', color='breed_group_CKC',title="Small Dog Breeds (under 25 lbs.)", template="plotly_dark")
+st.write(fig)
+
 
 st.subheader("Selecting a subset of columns")
 st.write(f"Out of the {df.shape[1]} columns, you might want to view only a subset. Streamlit has a [multiselect](https://streamlit.io/docs/api.html#streamlit.multiselect) widget for this.")
