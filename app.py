@@ -1,6 +1,9 @@
-import streamlit as st
+from typing import Union, Any
+
 import pandas as pd
 import plotly.express as px
+import streamlit as st
+from plotly.graph_objs import Figure
 
 
 @st.cache
@@ -13,15 +16,19 @@ df = get_data()
 
 st.title("🐶Dog Breed Explorer🐶")
 st.markdown(
-    "Welcome to Dog Breed Explorer! Click anywhere on the interactive sunburst charts below to explore dog breeds \n "
-    "by their [Continental Kennel Club (CKC)](https://ckcusa.com/) group and subgroup.) \n"
-    "Please adopt a dog from your local shelter if possible. If you must buy a puppy, please research the breeders you're interested \n"
+    "Welcome to Dog Breed Explorer! Scroll down to the charts to explore some characteristics of 122 dog breeds \n "
+    "by their [Continental Kennel Club (CKC)](https://ckcusa.com/) group and subgroup. \n"
+    "Please adopt a dog from your local shelter if possible. Find one [here]("
+    "https://www.petfinder.com/animal-shelters-and-rescues/search/). If you must buy a puppy, please research the "
+    "breeders "
+    "you're interested \n "
     "in and avoid pet stores.")
-st.subheader("For real, tho.")
+
 st.markdown("> The better I get to know men, the more I find myself loving dogs. \n\n—Charles De Gaulle")
 st.subheader(
-    "For all you spreadsheet aficionados, here's a glance at the data I've visualized in the sunburst charts below.")
-st.markdown("The first ten records of the dog breeds dataset. Click on a column name to sort.")
+    'For all you spreadsheet aficionados, here\'s a glance at the data I\'ve visualized in the interactive charts below.')
+st.markdown('The first ten records of the dog breeds dataset. Click on a column name to sort. Click the two arrows to '
+            'the outside and upper right of the table to view all columns.')
 st.dataframe(df.head(10))
 
 
@@ -38,13 +45,25 @@ st.download_button(
     mime='text/csv',
 )
 
-st.header("Average Lifespan of Each CKC Breed Group")
-span = df.groupby("breed_group_CKC").average_lifespan.median().reset_index()
-fig_1 = px.bar(span, x="breed_group_CKC", y="average_lifespan", color="breed_group_CKC", template="plotly_dark",
-               title="Average Lifespan of Dog Breeds (colored by CKC breed group)")
+st.subheader("Average Heights and Weights of Dogs by Breed")
+st.markdown('In the scatterplot below, hover over any point for the breed name, average height (inches), and average '
+            'weight (pounds).')
+fig_a: Union[Figure, Any] = px.scatter(df,x="avg_height",y="avg_weight", color="avg_weight",
+                 template="plotly_dark", hover_name='breed',hover_data=['avg_height','avg_weight'])
+st.write(fig_a)
+
+st.subheader("Average Lifespan of Each CKC Breed Group")
+st.markdown("Hover over bars for more details. See interactivity options in the upper right side of the chart.")
+span = df.groupby("breed_group_CKC").average_lifespan.median().sort_values(axis=0, ascending = True).reset_index()
+fig_1 = px.bar(span, x="breed_group_CKC", y="average_lifespan", color="breed_group_CKC", template="plotly_dark")
+fig_1.update_traces(hovertemplate='CKC Breed Group <br>Average Life Expectancy: %{y}')
+fig_1.update_layout(showlegend = False)
 st.write(fig_1)
 
 st.subheader("Dog Breeds by Size, CKC Breed Group, and CKC Breed Subgroup")
+st.markdown(
+    'Click on the two arrows in the upper right corner of the chart to enlarge. Click the innermost circle to reset '
+    'the sunburst chart.')
 small = df[df["avg_weight"] < 25]
 fig_2 = px.sunburst(small, path=['breed_group_CKC', 'breed_ckc_subgroup', 'breed'], values='avg_weight',
                     color='breed_group_CKC', title="Small Dog Breeds (under 25 lbs.)", template="plotly_dark")
@@ -69,8 +88,9 @@ fig_5 = px.sunburst(xl, path=['breed_group_CKC', 'breed_ckc_subgroup', 'breed'],
                     title="Extra Large Dog Breeds (90 lbs.+", template="plotly_dark")
 st.write(fig_5)
 
-st.markdown("## Yay! You explored some data today!")
+st.markdown("### Yay! You explored some data today!")
 st.write("You know you want to click that button 👇🏼")
 btn = st.button("Celebrate!")
 if btn:
     st.balloons()
+
