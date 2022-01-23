@@ -50,8 +50,6 @@ st.markdown('In the scatterplot below, hover over any point for the breed name, 
             'weight.')
 fig_a: Union[Figure, Any] = px.scatter(df,x="avg_height",y="avg_weight", color="avg_weight",
                  template="plotly_dark", hover_name='breed',hover_data=['avg_height','avg_weight'])
-fig_a.update_yaxes('average weight (lbs)')
-fig_a.update_xaxes('average height (inches)')
 st.write(fig_a)
 
 st.subheader("Average Lifespan of Each CKC Breed Group")
