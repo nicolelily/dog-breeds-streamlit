@@ -46,10 +46,12 @@ st.download_button(
 )
 
 st.subheader("Average Heights and Weights of Dogs by Breed")
-st.markdown('In the scatterplot below, hover over any point for the breed name, average height (inches), and average '
-            'weight (pounds).')
+st.markdown('In the scatterplot below, hover over any point for the breed name, average height, and average '
+            'weight.')
 fig_a: Union[Figure, Any] = px.scatter(df,x="avg_height",y="avg_weight", color="avg_weight",
                  template="plotly_dark", hover_name='breed',hover_data=['avg_height','avg_weight'])
+fig_a.update_yaxes('average weight (lbs)')
+fig_a.update_xaxes('average height (inches)')
 st.write(fig_a)
 
 st.subheader("Average Lifespan of Each CKC Breed Group")
@@ -58,6 +60,8 @@ span = df.groupby("breed_group_CKC").average_lifespan.median().sort_values(axis=
 fig_1 = px.bar(span, x="breed_group_CKC", y="average_lifespan", color="breed_group_CKC", template="plotly_dark")
 fig_1.update_traces(hovertemplate='CKC Breed Group <br>Average Life Expectancy: %{y}')
 fig_1.update_layout(showlegend = False)
+fig_1.update_yaxes(title_text='average lifespan (years)')
+fig_1.update_xaxes(title_text='CKC breed group')
 st.write(fig_1)
 
 st.subheader("Dog Breeds by Size, CKC Breed Group, and CKC Breed Subgroup")
