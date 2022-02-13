@@ -68,15 +68,39 @@ st.markdown(
     'Click on the two arrows in the upper right corner of the chart to enlarge. Click the innermost circle to reset '
     'the sunburst chart.')
 small = df[df["avg_weight"] < 25]
-fig_2 = px.sunburst(small, path=['breed_group_CKC', 'breed_ckc_subgroup', 'breed'], values='avg_weight',
-                    color='breed_group_CKC', title="Small Dog Breeds (under 25 lbs.)", template="plotly_dark")
+labels={''}
+fig_2 = px.sunburst(small, path=["breed_group_CKC", 'breed_ckc_subgroup', 'breed'], values='avg_weight',
+                    color='breed_group_CKC', title='Small Dog Breeds (under 25 lbs.)', template="plotly_dark")
 st.write(fig_2)
 
+sm_subgroup_weights = round(small.groupby(by=['breed_ckc_subgroup'])['avg_weight'].mean(),1)
+
+fig_2a = px.scatter(sm_subgroup_weights, x='avg_weight',
+                 title="Average weights by CKC Subgroup, small breeds",
+                 labels={"breed_ckc_subgroup":"CKC Breed Subgroups", "avg_weight":"Average weight (lbs)"},
+                 template="plotly_dark"
+                )
+fig_2a.update_yaxes(categoryorder="median descending")
+fig_2a.update_traces(hovertemplate='CKC Breed Subroup: %{y} <br>Average Weight (lbs): %{x}')
+st.write(fig_2a)
+
 medium = df.loc[(df["avg_weight"] >= 25) & (df["avg_weight"] < 50)]
-fig_3 = px.sunburst(medium, path=['breed_group_CKC', 'breed_ckc_subgroup', 'breed'], values='avg_weight',
-                    color='breed_group_CKC',
+fig_3 = px.sunburst(medium, path=['breed_group_CKC', 'breed_ckc_subgroup', 'breed'], color='breed_group_CKC',
+                    values='avg_weight',
                     title="Medium Dog Breeds (25 to 50 lbs.)", template="plotly_dark")
 st.write(fig_3)
+
+med_subgroup_weights = round(medium.groupby(by=['breed_ckc_subgroup'])['avg_weight'].mean(),1)
+
+fig_3a = px.scatter(med_subgroup_weights, x='avg_weight',
+                 title="Average weights by CKC Subgroup, medium breeds",
+                 labels={"breed_ckc_subgroup":"CKC Breed Subgroups", "avg_weight":"Average weight (lbs)"},
+                 template="plotly_dark"
+                )
+fig_3a.update_yaxes(categoryorder="median descending")
+fig_3a.update_traces(marker_color='#F3DFA2')
+
+st.write(fig_3a)
 
 large = df.loc[(df["avg_weight"] >= 50) & (df["avg_weight"] < 90)]
 xl = df.loc[(df["avg_weight"] >= 90)]
@@ -86,10 +110,31 @@ fig_4 = px.sunburst(large, path=['breed_group_CKC', 'breed_ckc_subgroup', 'breed
                     title="Large Dog Breeds (51 to 89 lbs.)", template="plotly_dark")
 st.write(fig_4)
 
+lg_subgroup_weights = round(large.groupby(by=['breed_ckc_subgroup'])['avg_weight'].mean(),1)
+fig4a = px.scatter(lg_subgroup_weights, x='avg_weight',
+                 title="Average weights by CKC Subgroup, large breeds",
+                 labels={"breed_ckc_subgroup":"CKC Breed Subgroups", "avg_weight":"Average weight (lbs)"},
+                 template="plotly_dark"
+                )
+fig4a.update_yaxes(categoryorder="median descending")
+fig4a.update_traces(marker_color='#DE4D86')
+st.write(fig4a)
+
 fig_5 = px.sunburst(xl, path=['breed_group_CKC', 'breed_ckc_subgroup', 'breed'], values='avg_weight',
                     color='breed_group_CKC',
                     title="Extra Large Dog Breeds (90 lbs.+", template="plotly_dark")
 st.write(fig_5)
+
+xl_subgroup_weights = round(xl.groupby(by=['breed_ckc_subgroup'])['avg_weight'].mean(),1)
+fig_5a = px.scatter(xl_subgroup_weights, x='avg_weight',
+                 title="Average weights by CKC Subgroup, extra large breeds",
+                 labels={"breed_ckc_subgroup":"CKC Breed Subgroups", "avg_weight":"Average weight (lbs)"},
+                 template="plotly_dark"
+                )
+fig_5a.update_yaxes(categoryorder="median descending")
+fig_5a.update_traces(marker_color='#AB9AEA')
+st.write(fig_5a)
+
 
 st.markdown("### Yay! You explored some data today!")
 st.write("You know you want to click that button 👇🏼")
