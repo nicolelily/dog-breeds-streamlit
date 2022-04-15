@@ -141,4 +141,3 @@ st.write("You know you want to click that button 👇🏼")
 btn = st.button("Celebrate!")
 if btn:
     st.balloons()
-
