@@ -7,11 +7,6 @@ from plotly.graph_objs import Figure
 import os
 from supabase import create_client, Client
 
-url: str = os.environ.get("SUPABASE_URL")
-key: str = os.environ.get("SUPABASE_KEY")
-supabase: Client = create_client(url, key)
-
-
 @st.cache_resource
 def init_connection():
     url = st.secrets["supabase_url"]
