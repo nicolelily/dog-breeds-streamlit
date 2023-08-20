@@ -12,14 +12,23 @@ key: str = os.environ.get("SUPABASE_KEY")
 supabase: Client = create_client(url, key)
 
 
-@st.cache
-#def get_data():
-#    return pd.read_csv(
-#        "https://docs.google.com/spreadsheets/d/e/2PACX-1vRV48XxyP4ipyXu79PV_XpmshMSXPCBWAq9yX_hewG-BRb14Tesu4nylUCUEYLlyDeLOUsZpA228m6T/pub?gid=298041788&single=true&output=csv")
-data = supabase.table("dog-breeds-data").select("*").execute()
-df = data
+@st.cache_resource
+def init_connection():
+    url = st.secrets["supabase_url"]
+    key = st.secrets["supabase_key"]
+    return create_client(url, key)
 
-#get_data()
+supabase = init_connection()
+
+@st.cache_data(ttl=600)
+def run_query():
+    return supabase.table("dog-breeds-data").select("*").execute()
+
+rows = run_query()
+for row in rows.data:
+    st.write()
+
+df = rows
 
 st.title("🐶Dog Breed Explorer🐶")
 st.markdown(
