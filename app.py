@@ -4,15 +4,22 @@ import pandas as pd
 import plotly.express as px
 import streamlit as st
 from plotly.graph_objs import Figure
+import os
+from supabase import create_client, Client
+
+url: str = os.environ.get("SUPABASE_URL")
+key: str = os.environ.get("SUPABASE_KEY")
+supabase: Client = create_client(url, key)
 
 
 @st.cache
-def get_data():
-    return pd.read_csv(
-        "https://docs.google.com/spreadsheets/d/e/2PACX-1vRV48XxyP4ipyXu79PV_XpmshMSXPCBWAq9yX_hewG-BRb14Tesu4nylUCUEYLlyDeLOUsZpA228m6T/pub?gid=298041788&single=true&output=csv")
+#def get_data():
+#    return pd.read_csv(
+#        "https://docs.google.com/spreadsheets/d/e/2PACX-1vRV48XxyP4ipyXu79PV_XpmshMSXPCBWAq9yX_hewG-BRb14Tesu4nylUCUEYLlyDeLOUsZpA228m6T/pub?gid=298041788&single=true&output=csv")
+data = supabase.table("dog-breeds-data").select("*").execute()
+df = data
 
-
-df = get_data()
+#get_data()
 
 st.title("🐶Dog Breed Explorer🐶")
 st.markdown(
