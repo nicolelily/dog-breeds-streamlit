@@ -68,7 +68,12 @@ st.markdown(
     'Click on the two arrows in the upper right corner of the chart to enlarge. Click the innermost circle to reset '
     'the sunburst chart.')
 small = df[df["average weight"] < 25]
-fig_2 = px.sunburst(small, path=["Breed Group CKC", 'CKC Subgroup', 'Breed'], values='average weight',
+# Clean data for sunburst chart - remove rows with empty or "None" values
+small_clean = small.dropna(subset=['Breed Group CKC', 'CKC Subgroup', 'Breed'])
+small_clean = small_clean[small_clean['CKC Subgroup'] != 'None']
+small_clean = small_clean[small_clean['CKC Subgroup'] != 'Not Recognized']
+small_clean = small_clean[small_clean['Breed Group CKC'] != 'Not Recognized']
+fig_2 = px.sunburst(small_clean, path=["Breed Group CKC", 'CKC Subgroup', 'Breed'], values='average weight',
                     color='Breed Group CKC', title='Small Dog Breeds (under 25 lbs.)', template="plotly_dark")
 st.write(fig_2)
 
@@ -84,7 +89,12 @@ fig_2a.update_traces(hovertemplate='CKC Breed Subgroup: %{y} <br>Average Weight 
 st.write(fig_2a)
 
 medium = df.loc[(df["average weight"] >= 25) & (df["average weight"] < 50)]
-fig_3 = px.sunburst(medium, path=['Breed Group CKC', 'CKC Subgroup', 'Breed'], color='Breed Group CKC',
+# Clean data for sunburst chart
+medium_clean = medium.dropna(subset=['Breed Group CKC', 'CKC Subgroup', 'Breed'])
+medium_clean = medium_clean[medium_clean['CKC Subgroup'] != 'None']
+medium_clean = medium_clean[medium_clean['CKC Subgroup'] != 'Not Recognized']
+medium_clean = medium_clean[medium_clean['Breed Group CKC'] != 'Not Recognized']
+fig_3 = px.sunburst(medium_clean, path=['Breed Group CKC', 'CKC Subgroup', 'Breed'], color='Breed Group CKC',
                     values='average weight',
                     title="Medium Dog Breeds (25 to 50 lbs.)", template="plotly_dark")
 st.write(fig_3)
@@ -104,7 +114,12 @@ st.write(fig_3a)
 large = df.loc[(df["average weight"] >= 50) & (df["average weight"] < 90)]
 xl = df.loc[(df["average weight"] >= 90)]
 
-fig_4 = px.sunburst(large, path=['Breed Group CKC', 'CKC Subgroup', 'Breed'], values='average weight',
+# Clean data for sunburst chart
+large_clean = large.dropna(subset=['Breed Group CKC', 'CKC Subgroup', 'Breed'])
+large_clean = large_clean[large_clean['CKC Subgroup'] != 'None']
+large_clean = large_clean[large_clean['CKC Subgroup'] != 'Not Recognized']
+large_clean = large_clean[large_clean['Breed Group CKC'] != 'Not Recognized']
+fig_4 = px.sunburst(large_clean, path=['Breed Group CKC', 'CKC Subgroup', 'Breed'], values='average weight',
                     color='Breed Group CKC',
                     title="Large Dog Breeds (51 to 89 lbs.)", template="plotly_dark")
 st.write(fig_4)
@@ -119,7 +134,12 @@ fig4a.update_yaxes(categoryorder="median descending")
 fig4a.update_traces(marker_color='#DE4D86')
 st.write(fig4a)
 
-fig_5 = px.sunburst(xl, path=['Breed Group CKC', 'CKC Subgroup', 'Breed'], values='average weight',
+# Clean data for sunburst chart
+xl_clean = xl.dropna(subset=['Breed Group CKC', 'CKC Subgroup', 'Breed'])
+xl_clean = xl_clean[xl_clean['CKC Subgroup'] != 'None']
+xl_clean = xl_clean[xl_clean['CKC Subgroup'] != 'Not Recognized']
+xl_clean = xl_clean[xl_clean['Breed Group CKC'] != 'Not Recognized']
+fig_5 = px.sunburst(xl_clean, path=['Breed Group CKC', 'CKC Subgroup', 'Breed'], values='average weight',
                     color='Breed Group CKC',
                     title="Extra Large Dog Breeds (90 lbs.+)", template="plotly_dark")
 st.write(fig_5)
