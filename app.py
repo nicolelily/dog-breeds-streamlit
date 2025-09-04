@@ -59,36 +59,46 @@ st.markdown("Key performance indicators showing median lifespan for each breed g
 # Calculate lifespan data for KPI cards
 lifespan_data = df.groupby("Breed Group CKC")["average lifespan"].median().sort_values(ascending=False)
 
-# Create KPI cards using columns
-# Streamlit's st.columns() creates a responsive layout
-cols = st.columns(len(lifespan_data))
+# Convert to list for easier chunking
+lifespan_items = list(lifespan_data.items())
 
-# Loop through each breed group and create a KPI card
-for i, (breed_group, lifespan) in enumerate(lifespan_data.items()):
-    with cols[i]:
-        # Create a container for the KPI card
-        with st.container():
-            # Add some styling with markdown
-            st.markdown(f"""
-            <div style="
-                background-color: #1e1e1e;
-                padding: 1rem;
-                border-radius: 0.5rem;
-                text-align: center;
-                border: 1px solid #333;
-                margin: 0.5rem 0;
-            ">
-                <h4 style="color: #ffffff; margin: 0 0 0.5rem 0; font-size: 0.9rem;">
-                    {breed_group}
-                </h4>
-                <h2 style="color: #00ff88; margin: 0; font-size: 2rem;">
-                    {lifespan:.1f}
-                </h2>
-                <p style="color: #888; margin: 0.5rem 0 0 0; font-size: 0.8rem;">
-                    years
-                </p>
-            </div>
-            """, unsafe_allow_html=True)
+# Define cards per row (4 cards per row for better readability)
+cards_per_row = 4
+
+# Split data into chunks for multiple rows
+for i in range(0, len(lifespan_items), cards_per_row):
+    # Get chunk of data for this row
+    row_data = lifespan_items[i:i + cards_per_row]
+    
+    # Create columns for this row
+    cols = st.columns(cards_per_row)
+    
+    # Create KPI cards for this row
+    for j, (breed_group, lifespan) in enumerate(row_data):
+        with cols[j]:
+            # Create a container for the KPI card
+            with st.container():
+                # Add some styling with markdown
+                st.markdown(f"""
+                <div style="
+                    background-color: #1e1e1e;
+                    padding: 1rem;
+                    border-radius: 0.5rem;
+                    text-align: center;
+                    border: 1px solid #333;
+                    margin: 0.5rem 0;
+                ">
+                    <h4 style="color: #ffffff; margin: 0 0 0.5rem 0; font-size: 0.9rem;">
+                        {breed_group}
+                    </h4>
+                    <h2 style="color: #00ff88; margin: 0; font-size: 2rem;">
+                        {lifespan:.1f}
+                    </h2>
+                    <p style="color: #888; margin: 0.5rem 0 0 0; font-size: 0.8rem;">
+                        years
+                    </p>
+                </div>
+                """, unsafe_allow_html=True)
 
 st.subheader("Dog Breeds by Size, CKC Breed Group, and CKC Breed Subgroup")
 st.markdown(
