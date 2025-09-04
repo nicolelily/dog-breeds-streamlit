@@ -5,23 +5,14 @@ import plotly.express as px
 import streamlit as st
 from plotly.graph_objs import Figure
 import os
-from supabase import create_client, Client
 
-@st.cache_resource
-def init_connection():
-    url = st.secrets["supabase_url"]
-    key = st.secrets["supabase_key"]
-    return create_client(url, key)
+@st.cache_data
+def load_data():
+    """Load the dog breeds data from CSV file"""
+    return pd.read_csv("breeds.csv")
 
-supabase = init_connection()
-
-@st.cache_data(ttl=600)
-def run_query():
-    return supabase.table("dog-breeds-data").select("*").execute()
-
-rows = run_query()
-# Convert the data to a pandas DataFrame
-df = pd.DataFrame(rows.data)
+# Load the data
+df = load_data()
 
 st.title("🐶Dog Breed Explorer🐶")
 st.markdown(

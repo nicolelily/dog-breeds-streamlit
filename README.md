@@ -19,15 +19,7 @@ statistics.
 pip install -r requirements.txt
 ```
 
-2. Set up your Supabase credentials in Streamlit secrets:
-
-```toml
-# .streamlit/secrets.toml
-supabase_url = "your_supabase_url"
-supabase_key = "your_supabase_key"
-```
-
-3. Run the app:
+2. Run the app:
 
 ```bash
 streamlit run app.py
@@ -38,14 +30,13 @@ streamlit run app.py
 - Streamlit >= 1.28.0
 - Pandas >= 2.0.0
 - Plotly >= 5.17.0
-- Supabase >= 2.18.0
 
 ## Data Source
 
-The app connects to a Supabase database containing dog breed information from
-the Continental Kennel Club (CKC).
+The app uses the local `breeds.csv` file containing dog breed information from
+the Continental Kennel Club (CKC). No external database connection required!
 
 ## Deployment
 
-This app is designed to be deployed on Streamlit Community Cloud. Make sure your
-Supabase credentials are properly configured in the Streamlit Cloud secrets.
+This app is designed to be deployed on Streamlit Community Cloud. Simply push your
+code to GitHub and deploy - no additional configuration needed!
