@@ -6,6 +6,14 @@ import streamlit as st
 from plotly.graph_objs import Figure
 import os
 
+# Configure page for wide layout
+st.set_page_config(
+    page_title="Dog Breed Explorer",
+    page_icon="🐶",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
+
 @st.cache_data
 def load_data():
     """Load the dog breeds data from CSV file"""
@@ -70,8 +78,8 @@ for i in range(0, len(lifespan_items), cards_per_row):
     # Get chunk of data for this row
     row_data = lifespan_items[i:i + cards_per_row]
     
-    # Create columns for this row
-    cols = st.columns(cards_per_row)
+    # Create columns for this row with small gap for better spacing
+    cols = st.columns(cards_per_row, gap="small")
     
     # Create KPI cards for this row
     for j, (breed_group, lifespan) in enumerate(row_data):
@@ -82,16 +90,21 @@ for i in range(0, len(lifespan_items), cards_per_row):
                 st.markdown(f"""
                 <div style="
                     background-color: #1e1e1e;
-                    padding: 1rem;
+                    padding: 1.2rem;
                     border-radius: 0.5rem;
                     text-align: center;
                     border: 1px solid #333;
                     margin: 0.5rem 0;
+                    height: 150px;
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                    min-height: 150px;
                 ">
-                    <h4 style="color: #ffffff; margin: 0 0 0.5rem 0; font-size: 0.9rem;">
+                    <h4 style="color: #ffffff; margin: 0 0 0.8rem 0; font-size: 0.85rem; line-height: 1.2; height: 2.4rem; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">
                         {breed_group}
                     </h4>
-                    <h2 style="color: #00ff88; margin: 0; font-size: 2rem;">
+                    <h2 style="color: #00ff88; margin: 0; font-size: 2.2rem; font-weight: bold;">
                         {lifespan:.1f}
                     </h2>
                     <p style="color: #888; margin: 0.5rem 0 0 0; font-size: 0.8rem;">
