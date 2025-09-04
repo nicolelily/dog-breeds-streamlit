@@ -53,15 +53,42 @@ fig_a: Union[Figure, Any] = px.scatter(df,x="average height",y="average weight",
 fig_a.update_layout({'xaxis':{'title': {'text': 'average height (in)'}}, 'yaxis':{'title': {'text': 'average weight (lbs)'}}})
 st.write(fig_a)
 
-st.subheader("Average Lifespan of Each CKC Breed Group")
-st.markdown("Hover over bars for more details. See interactivity options in the upper right side of the chart.")
-span = df.groupby("Breed Group CKC")["average lifespan"].median().sort_values(ascending=True).reset_index()
-fig_1 = px.bar(span, x="Breed Group CKC", y="average lifespan", color="Breed Group CKC", template="plotly_dark")
-fig_1.update_traces(hovertemplate='CKC Breed Group <br>Average Life Expectancy: %{y}')
-fig_1.update_layout(showlegend = False)
-fig_1.update_yaxes(title_text='average lifespan (years)')
-fig_1.update_xaxes(title_text='CKC breed group')
-st.write(fig_1)
+st.subheader("Average Lifespan by CKC Breed Group")
+st.markdown("Key performance indicators showing median lifespan for each breed group.")
+
+# Calculate lifespan data for KPI cards
+lifespan_data = df.groupby("Breed Group CKC")["average lifespan"].median().sort_values(ascending=False)
+
+# Create KPI cards using columns
+# Streamlit's st.columns() creates a responsive layout
+cols = st.columns(len(lifespan_data))
+
+# Loop through each breed group and create a KPI card
+for i, (breed_group, lifespan) in enumerate(lifespan_data.items()):
+    with cols[i]:
+        # Create a container for the KPI card
+        with st.container():
+            # Add some styling with markdown
+            st.markdown(f"""
+            <div style="
+                background-color: #1e1e1e;
+                padding: 1rem;
+                border-radius: 0.5rem;
+                text-align: center;
+                border: 1px solid #333;
+                margin: 0.5rem 0;
+            ">
+                <h4 style="color: #ffffff; margin: 0 0 0.5rem 0; font-size: 0.9rem;">
+                    {breed_group}
+                </h4>
+                <h2 style="color: #00ff88; margin: 0; font-size: 2rem;">
+                    {lifespan:.1f}
+                </h2>
+                <p style="color: #888; margin: 0.5rem 0 0 0; font-size: 0.8rem;">
+                    years
+                </p>
+            </div>
+            """, unsafe_allow_html=True)
 
 st.subheader("Dog Breeds by Size, CKC Breed Group, and CKC Breed Subgroup")
 st.markdown(
