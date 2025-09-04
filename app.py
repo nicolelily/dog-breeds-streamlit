@@ -57,13 +57,13 @@ st.subheader("Average Lifespan by CKC Breed Group")
 st.markdown("Key performance indicators showing median lifespan for each breed group.")
 
 # Calculate lifespan data for KPI cards
-lifespan_data = df.groupby("Breed Group CKC")["average lifespan"].median().sort_values(ascending=False)
+lifespan_data = df.groupby("Breed Group CKC")["average lifespan"].median().sort_index()
 
 # Convert to list for easier chunking
 lifespan_items = list(lifespan_data.items())
 
-# Define cards per row (4 cards per row for better readability)
-cards_per_row = 4
+# Define cards per row (3 cards per row for better spacing)
+cards_per_row = 3
 
 # Split data into chunks for multiple rows
 for i in range(0, len(lifespan_items), cards_per_row):
