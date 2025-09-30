@@ -9,5 +9,4 @@ statistics.
 - Scatter plots showing height vs weight relationships
 - Bar charts displaying average lifespans by breed group
 - Sunburst charts categorizing breeds by size and group
-- Data export functionality
 
