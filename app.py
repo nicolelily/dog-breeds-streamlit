@@ -1,5 +1,4 @@
 from typing import Union, Any
-
 import pandas as pd
 import plotly.express as px
 import streamlit as st
@@ -8,9 +7,9 @@ import os
 
 # Configure page for wide layout
 st.set_page_config(
-    page_title="Dog Breed Explorer",
+    page_title="Dog Breeds Explorer",
     page_icon="🐶",
-    layout="wide",
+    layout="centered",
     initial_sidebar_state="expanded"
 )
 
@@ -19,8 +18,8 @@ def load_data():
     """Load the dog breeds data from CSV file"""
     return pd.read_csv("breeds.csv")
 
-# Load the data
-df = load_data()
+# Load the data and ensure it's a pure DataFrame
+df = pd.DataFrame(load_data())
 
 st.title("🐶Dog Breed Explorer🐶")
 st.markdown(
@@ -40,19 +39,6 @@ st.markdown('The first ten records of the dog breeds dataset. Click on a column 
 st.dataframe(df.head(10))
 
 
-def convert_df(df):
-    return df.to_csv().encode('utf-8')
-
-
-csv = convert_df(df)
-
-st.download_button(
-    label="Download data as CSV",
-    data=csv,
-    file_name='dog_breeds.csv',
-    mime='text/csv',
-)
-
 st.subheader("Average Heights and Weights of Dogs by Breed")
 st.markdown('In the scatterplot below, hover over any point for the breed name, average height, and average '
             'weight.')
@@ -61,70 +47,31 @@ fig_a: Union[Figure, Any] = px.scatter(df,x="average height",y="average weight",
 fig_a.update_layout({'xaxis':{'title': {'text': 'average height (in)'}}, 'yaxis':{'title': {'text': 'average weight (lbs)'}}})
 st.write(fig_a)
 
-st.subheader("Average Lifespan by CKC Breed Group")
-st.markdown("Key performance indicators showing median lifespan for each breed group.")
-
-# Calculate lifespan data for KPI cards
-lifespan_data = df.groupby("Breed Group CKC")["average lifespan"].median().sort_index()
-
-# Convert to list for easier chunking
-lifespan_items = list(lifespan_data.items())
-
-# Define cards per row (3 cards per row for better spacing)
-cards_per_row = 3
-
-# Split data into chunks for multiple rows
-for i in range(0, len(lifespan_items), cards_per_row):
-    # Get chunk of data for this row
-    row_data = lifespan_items[i:i + cards_per_row]
-    
-    # Create columns for this row with small gap for better spacing
-    cols = st.columns(cards_per_row, gap="small")
-    
-    # Create KPI cards for this row
-    for j, (breed_group, lifespan) in enumerate(row_data):
-        with cols[j]:
-            # Create a container for the KPI card
-            with st.container():
-                # Add some styling with markdown
-                st.markdown(f"""
-                <div style="
-                    background-color: #1e1e1e;
-                    padding: 1.2rem;
-                    border-radius: 0.5rem;
-                    text-align: center;
-                    border: 1px solid #333;
-                    margin: 0.5rem 0;
-                    height: 150px;
-                    display: flex;
-                    flex-direction: column;
-                    justify-content: center;
-                    min-height: 150px;
-                ">
-                    <h4 style="color: #ffffff; margin: 0 0 0.8rem 0; font-size: 0.85rem; line-height: 1.2; height: 2.4rem; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">
-                        {breed_group}
-                    </h4>
-                    <h2 style="color: #00ff88; margin: 0; font-size: 2.2rem; font-weight: bold;">
-                        {lifespan:.1f}
-                    </h2>
-                    <p style="color: #888; margin: 0.5rem 0 0 0; font-size: 0.8rem;">
-                        years
-                    </p>
-                </div>
-                """, unsafe_allow_html=True)
-
 st.subheader("Dog Breeds by Size, CKC Breed Group, and CKC Breed Subgroup")
 st.markdown(
     'Click on the two arrows in the upper right corner of the chart to enlarge. Click the innermost circle to reset '
     'the sunburst chart.')
-small = df[df["average weight"] < 25]
-# Clean data for sunburst chart - remove rows with empty or "None" values
+
+small = df.loc[(df["average weight"] < 25)]
 small_clean = small.dropna(subset=['Breed Group CKC', 'CKC Subgroup', 'Breed'])
 small_clean = small_clean[small_clean['CKC Subgroup'] != 'None']
 small_clean = small_clean[small_clean['CKC Subgroup'] != 'Not Recognized']
 small_clean = small_clean[small_clean['Breed Group CKC'] != 'Not Recognized']
-fig_2 = px.sunburst(small_clean, path=["Breed Group CKC", 'CKC Subgroup', 'Breed'], values='average weight',
-                    color='Breed Group CKC', title='Small Dog Breeds (under 25 lbs.)', template="plotly_dark")
+
+# Nuclear option: create completely fresh DataFrame
+small_clean = pd.DataFrame(
+    small_clean.to_dict('records'),
+    columns=small_clean.columns
+).reset_index(drop=True)
+
+fig_2 = px.sunburst(
+    small_clean, 
+    path=['Breed Group CKC', 'CKC Subgroup', 'Breed'],
+    values='average weight',
+    color='Breed Group CKC', 
+    title='Small Dog Breeds (under 25 lbs.)', 
+    template="plotly_dark")
+
 st.write(fig_2)
 
 sm_subgroup_weights = round(small.groupby(by=['CKC Subgroup'])['average weight'].mean(),1)
